@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        #quiz-container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        #question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #ecf0f1;
+            transition: 0.3s;
+        }
+
+        .option-button:hover {
+            background-color: #bdc3c7;
+        }
+
+        .correct {
+            background-color: #2ecc71 !important;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: #e74c3c !important;
+            color: white;
+        }
+
+        #score-container {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Green Overlay Effect */
+        #progress-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: rgba(46, 204, 113, 0.7); /* Greenish overlay */
+            transition: height 0.5s ease-in-out;
+            z-index: 5;
+        }
+
+        .huge-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: gold;
+            font-size: 50px;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        /* Enhanced Restart Button */
+        #huge-celebration button {
+            padding: 5px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #3498db; /* Blue background */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            margin-top: 10px;
+        }
+
+        #huge-celebration button:hover {
+            background-color: #2980b9; /* Darker blue on hover */
+            transform: scale(1.1); /* Slightly enlarge the button */
+        }
+
+        #huge-celebration button:focus {
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.7); /* Focus effect */
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Constitution Articles (65-93)</h2>
+
+    <div id="quiz-container">
+        <p id="question"></p>
+        <div id="options"></div>
+    </div>
+
+    <div id="score-container">সঠিক উত্তর: <span id="score">0</span></div>
+    
+    <div id="progress-overlay"></div>
+
+    <div id="huge-celebration" class="huge-celebration">
+        🎉 অবিশ্বাস্য! আপনি চমৎকার মেধাবী!🥳🎉  
+        <button onclick="resetQuiz()">পুনরায় শুরু করুন</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.3/dist/confetti.browser.min.js"></script>
+    <script>
+        const questions = [
+    { 
+        question: "সংসদ-প্রতিষ্ঠা সম্পর্কে সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৬৪", "৬৫", "৬৬", "৬৭"], 
+        answer: "৬৫" 
+    },
+    { 
+        question: "সংসদে নির্বাচিত হওয়ার যোগ্যতা ও অযোগ্যতা সংবিধানের কোন অনুচ্ছেদে নির্ধারণ করা হয়েছে?", 
+        options: ["৬৫", "৬৬", "৬৭", "৬৮"], 
+        answer: "৬৬" 
+    },
+    { 
+        question: "ফ্লোর ক্রোসিং সংক্রান্ত বিধান সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৬৮", "৬৯", "৭০", "৭১"], 
+        answer: "৭০" 
+    },
+    { 
+        question: "সংসদের অধিবেশন সংবিধানের কোন অনুচ্ছেদে নির্ধারিত হয়েছে?", 
+        options: ["৭০", "৭১", "৭২", "৭৩"], 
+        answer: "৭২" 
+    },
+    { 
+        question: "ন্যায়পাল (Ombudsman) সম্পর্কে সংবিধানের কোন অনুচ্ছেদে উল্লেখ রয়েছে?", 
+        options: ["৭৫", "৭৬", "৭৭", "৭৮"], 
+        answer: "৭৭" 
+    },
+    { 
+        question: "সংবিধান অনুযায়ী আইন প্রণয়ন-পদ্ধতি কোন অনুচ্ছেদে বর্ণিত আছে?", 
+        options: ["৭৯", "৮০", "৮১", "৮২"], 
+        answer: "৮০" 
+    },
+    { 
+        question: "অর্থবিল সংক্রান্ত বিধান সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৭৯", "৮০", "৮১", "৮২"], 
+        answer: "৮১" 
+    },
+    { 
+        question: "বার্ষিক আর্থিক বিবৃতি সংবিধানের কোন অনুচ্ছেদে উল্লেখ করা হয়েছে?", 
+        options: ["৮৫", "৮৬", "৮৭", "৮৮"], 
+        answer: "৮৭" 
+    },
+    { 
+        question: "অধ্যাদেশ প্রণয়ন-ক্ষমতা সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৯১", "৯২", "৯৩", "৯৪"], 
+        answer: "৯৩" 
+    }
+];
+        let score = 0;
+        let askedQuestions = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadQuestion() {
+            if (askedQuestions.length === questions.length) {
+              
+                askedQuestions = [];
+                score = 0;
+                document.getElementById("score").innerText = score;
+                updateProgressOverlay();
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (askedQuestions.includes(randomIndex));
+
+            askedQuestions.push(randomIndex);
+            const questionObj = questions[randomIndex];
+
+            document.getElementById("question").innerText = questionObj.question;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            shuffleArray(questionObj.options);
+
+            questionObj.options.forEach(option => {
+                const button = document.createElement("button");
+                button.className = "option-button";
+                button.innerText = option;
+                button.onclick = (e) => checkAnswer(e, button, questionObj.answer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(event, button, correctAnswer) {
+            if (button.innerText === correctAnswer) {
+                button.classList.add("correct");
+                score++;
+                document.getElementById("score").innerText = score;
+                updateProgressOverlay();
+                launchConfetti(event);
+                if (score === questions.length) {
+                    showCelebration();
+                }
+            } else {
+                button.classList.add("incorrect");
+            }
+
+            setTimeout(loadQuestion, 500);
+        }
+
+        function updateProgressOverlay() {
+            // Get the total number of questions
+            const totalQuestions = questions.length;
+
+            // Calculate progress as a percentage
+            let progress = (score / totalQuestions) * 100;
+
+            // Update the height of the progress overlay
+            document.getElementById("progress-overlay").style.height = `${progress}%`;
+        }
+
+        function showCelebration() {
+    document.getElementById("huge-celebration").style.display = "flex";
+    
+    // Multiple confetti blasts
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                startVelocity: 50,
+                origin: {
+                    x: Math.random(), // Random X position
+                    y: Math.random() * 0.5 // Confetti comes from the top half
+                }
+            });
+        }, i * 300); // Blasts at different times
+    }
+}
+
+        function resetQuiz() {
+            score = 0;
+            askedQuestions = [];
+            document.getElementById("score").innerText = score;
+            document.getElementById("progress-overlay").style.height = "0%";
+            document.getElementById("huge-celebration").style.display = "none";
+            loadQuestion();
+        }
+
+        function launchConfetti(event) {
+            const buttonPosition = event.target.getBoundingClientRect();
+            const buttonCenterX = buttonPosition.left + buttonPosition.width / 2;
+            const buttonCenterY = buttonPosition.top + buttonPosition.height / 2;
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: {
+                    x: buttonCenterX / window.innerWidth,
+                    y: buttonCenterY / window.innerHeight
+                }
+            });
+        }
+
+        loadQuestion();
+    </script>
+
+</body>
+</html>

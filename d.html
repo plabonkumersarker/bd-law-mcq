@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        #quiz-container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        #question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #ecf0f1;
+            transition: 0.3s;
+        }
+
+        .option-button:hover {
+            background-color: #bdc3c7;
+        }
+
+        .correct {
+            background-color: #2ecc71 !important;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: #e74c3c !important;
+            color: white;
+        }
+
+        #score-container {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Green Overlay Effect */
+        #progress-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: rgba(46, 204, 113, 0.7); /* Greenish overlay */
+            transition: height 0.5s ease-in-out;
+            z-index: 5;
+        }
+
+        .huge-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: gold;
+            font-size: 50px;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        /* Enhanced Restart Button */
+        #huge-celebration button {
+            padding: 5px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #3498db; /* Blue background */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            margin-top: 10px;
+        }
+
+        #huge-celebration button:hover {
+            background-color: #2980b9; /* Darker blue on hover */
+            transform: scale(1.1); /* Slightly enlarge the button */
+        }
+
+        #huge-celebration button:focus {
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.7); /* Focus effect */
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Constitution Articles (26-47)</h2>
+
+    <div id="quiz-container">
+        <p id="question"></p>
+        <div id="options"></div>
+    </div>
+
+    <div id="score-container">সঠিক উত্তর: <span id="score">0</span></div>
+    
+    <div id="progress-overlay"></div>
+
+    <div id="huge-celebration" class="huge-celebration">
+        🎉 অবিশ্বাস্য! আপনি চমৎকার মেধাবী!🥳🎉  
+        <button onclick="resetQuiz()">পুনরায় শুরু করুন</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.3/dist/confetti.browser.min.js"></script>
+    <script>
+        const questions = [
+    { 
+        question: "আইনের দৃষ্টিতে সমতা সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["২৬", "২৭", "৩০", "৩২"], 
+        answer: "২৭" 
+    },
+    { 
+        question: "ধর্ম প্রভৃতি কারণে বৈষম্য নিষিদ্ধ সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["২৭", "২৮", "২৯", "৩১"], 
+        answer: "২৮" 
+    },
+    { 
+        question: "রাষ্ট্র ও গণজীবনে নারী-পুরুষের সমান অধিকার কোন অনুচ্ছেদে নিশ্চিত করা হয়েছে?", 
+        options: ["২৮(১)", "২৮(২)", "২৯", "৩০"], 
+        answer: "২৮(২)" 
+    },
+    { 
+        question: "সরকারি নিয়োগ লাভের ক্ষেত্রে সুযোগের সমতা সংবিধানের কোন অনুচ্ছেদে আছে?", 
+        options: ["২৭", "২৮", "২৯", "৩০"], 
+        answer: "২৯" 
+    },
+    { 
+        question: "আইনের আশ্রয় লাভের অধিকার কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৩০", "৩১", "৩২", "৩৫"], 
+        answer: "৩১" 
+    },
+    { 
+        question: "চলাফেরার স্বাধীনতা কোন অনুচ্ছেদে নিশ্চিত করা হয়েছে?", 
+        options: ["৩৪", "৩৫", "৩৬", "৩৭"], 
+        answer: "৩৬" 
+    },
+    { 
+        question: "সমাবেশের স্বাধীনতা সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৩৫", "৩৬", "৩৭", "৩৮"], 
+        answer: "৩৭" 
+    },
+    { 
+        question: "সংগঠনের স্বাধীনতা কোন অনুচ্ছেদে নিশ্চিত করা হয়েছে?", 
+        options: ["৩৭", "৩৮", "৩৯", "৪০"], 
+        answer: "৩৮" 
+    },
+    { 
+        question: "চিন্তা ও বিবেকের স্বাধীনতা এবং বাক্-স্বাধীনতা সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৩৭", "৩৮", "৩৯", "৪০"], 
+        answer: "৩৯" 
+    },
+    { 
+        question: "পেশা বা বৃত্তির স্বাধীনতা সংবিধানের কোন অনুচ্ছেদে নিশ্চিত করা হয়েছে?", 
+        options: ["৩৮", "৩৯", "৪০", "৪১"], 
+        answer: "৪০" 
+    },
+    { 
+        question: "ধর্মীয় স্বাধীনতা সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৩৯", "৪০", "৪১", "৪২"], 
+        answer: "৪১" 
+    },
+    { 
+        question: "সম্পত্তির অধিকার সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৪০", "৪১", "৪২", "৪৩"], 
+        answer: "৪২" 
+    },
+    { 
+        question: "গৃহ ও যোগাযোগের রক্ষণ সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৪০", "৪২", "৪৩", "৪৪"], 
+        answer: "৪৩" 
+    }
+];
+
+        let score = 0;
+        let askedQuestions = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadQuestion() {
+            if (askedQuestions.length === questions.length) {
+              
+                askedQuestions = [];
+                score = 0;
+                document.getElementById("score").innerText = score;
+                updateProgressOverlay();
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (askedQuestions.includes(randomIndex));
+
+            askedQuestions.push(randomIndex);
+            const questionObj = questions[randomIndex];
+
+            document.getElementById("question").innerText = questionObj.question;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            shuffleArray(questionObj.options);
+
+            questionObj.options.forEach(option => {
+                const button = document.createElement("button");
+                button.className = "option-button";
+                button.innerText = option;
+                button.onclick = (e) => checkAnswer(e, button, questionObj.answer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(event, button, correctAnswer) {
+            if (button.innerText === correctAnswer) {
+                button.classList.add("correct");
+                score++;
+                document.getElementById("score").innerText = score;
+                updateProgressOverlay();
+                launchConfetti(event);
+                if (score === questions.length) {
+                    showCelebration();
+                }
+            } else {
+                button.classList.add("incorrect");
+            }
+
+            setTimeout(loadQuestion, 500);
+        }
+
+        function updateProgressOverlay() {
+            // Get the total number of questions
+            const totalQuestions = questions.length;
+
+            // Calculate progress as a percentage
+            let progress = (score / totalQuestions) * 100;
+
+            // Update the height of the progress overlay
+            document.getElementById("progress-overlay").style.height = `${progress}%`;
+        }
+
+        function showCelebration() {
+    document.getElementById("huge-celebration").style.display = "flex";
+    
+    // Multiple confetti blasts
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                startVelocity: 50,
+                origin: {
+                    x: Math.random(), // Random X position
+                    y: Math.random() * 0.5 // Confetti comes from the top half
+                }
+            });
+        }, i * 300); // Blasts at different times
+    }
+}
+
+        function resetQuiz() {
+            score = 0;
+            askedQuestions = [];
+            document.getElementById("score").innerText = score;
+            document.getElementById("progress-overlay").style.height = "0%";
+            document.getElementById("huge-celebration").style.display = "none";
+            loadQuestion();
+        }
+
+        function launchConfetti(event) {
+            const buttonPosition = event.target.getBoundingClientRect();
+            const buttonCenterX = buttonPosition.left + buttonPosition.width / 2;
+            const buttonCenterY = buttonPosition.top + buttonPosition.height / 2;
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: {
+                    x: buttonCenterX / window.innerWidth,
+                    y: buttonCenterY / window.innerHeight
+                }
+            });
+        }
+
+        loadQuestion();
+    </script>
+
+</body>
+</html>

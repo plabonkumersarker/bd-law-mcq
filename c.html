@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCQ Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h2 {
+            color: #2c3e50;
+        }
+
+        #quiz-container {
+            max-width: 500px;
+            margin: auto;
+            padding: 20px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
+        }
+
+        #question {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .option-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #ecf0f1;
+            transition: 0.3s;
+        }
+
+        .option-button:hover {
+            background-color: #bdc3c7;
+        }
+
+        .correct {
+            background-color: #2ecc71 !important;
+            color: white;
+        }
+
+        .incorrect {
+            background-color: #e74c3c !important;
+            color: white;
+        }
+
+        #score-container {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Green Overlay Effect */
+        #progress-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%;
+            background: rgba(46, 204, 113, 0.7); /* Greenish overlay */
+            transition: height 0.5s ease-in-out;
+            z-index: 5;
+        }
+
+        .huge-celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: gold;
+            font-size: 50px;
+            font-weight: bold;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 20;
+        }
+
+        /* Enhanced Restart Button */
+        #huge-celebration button {
+            padding: 5px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #3498db; /* Blue background */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            outline: none;
+            margin-top: 10px;
+        }
+
+        #huge-celebration button:hover {
+            background-color: #2980b9; /* Darker blue on hover */
+            transform: scale(1.1); /* Slightly enlarge the button */
+        }
+
+        #huge-celebration button:focus {
+            box-shadow: 0 0 10px rgba(52, 152, 219, 0.7); /* Focus effect */
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Constitution Articles (1-25)</h2>
+
+    <div id="quiz-container">
+        <p id="question"></p>
+        <div id="options"></div>
+    </div>
+
+    <div id="score-container">সঠিক উত্তর: <span id="score">0</span></div>
+    
+    <div id="progress-overlay"></div>
+
+    <div id="huge-celebration" class="huge-celebration">
+        🎉 অবিশ্বাস্য! আপনি চমৎকার মেধাবী!🥳🎉  
+        <button onclick="resetQuiz()">পুনরায় শুরু করুন</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.3.3/dist/confetti.browser.min.js"></script>
+    <script>
+        const questions = [
+            { question: "প্রজাতন্ত্র সংবিধানের কোন অনুচ্ছেদে উল্লেখ আছে?", options: ["১", "৬", "১২", "১৮"], answer: "১" },
+            { question: "প্রজাতন্ত্রের রাষ্ট্রীয় সীমানা কোন অনুচ্ছেদে আছে?", options: ["২", "৪", "৭", "১১"], answer: "২" },
+            { question: "রাষ্ট্রধর্ম কোন অনুচ্ছেদে উল্লেখ করা হয়েছে?", options: ["২ক", "৮", "১৯", "২৫"], answer: "২ক" },
+            { 
+        question: "রাষ্ট্রভাষা কোন অনুচ্ছেদে বলা হয়েছে?", 
+        options: ["৩", "৫", "৯", "৭ক"], 
+        answer: "৩" 
+    },
+    { 
+        question: "জাতীয় সঙ্গীত, পতাকা ও প্রতীক কোন অনুচ্ছেদে আছে?", 
+        options: ["৪", "৭", "১১", "১৫"], 
+        answer: "৪" 
+    },
+    { 
+        question: "জাতির পিতার প্রতিকৃতি সংক্রান্ত অনুচ্ছেদ কোনটি?", 
+        options: ["৪ক", "১০", "১৪", "২১"], 
+        answer: "৪ক" 
+    },
+    { 
+        question: "বাংলাদেশের রাজধানী কোন অনুচ্ছেদে উল্লেখ করা হয়েছে?", 
+        options: ["৫", "১৬", "২২", "২৪"], 
+        answer: "৫" 
+    },
+    { 
+        question: "নাগরিকত্ব সংক্রান্ত অনুচ্ছেদ কোনটি?", 
+        options: ["৬", "১৩", "১৭", "২০"], 
+        answer: "৬" 
+    },
+    { 
+        question: "সংবিধানের প্রাধান্য কোন অনুচ্ছেদে বলা আছে?", 
+        options: ["৭", "১৮", "১৯", "২৩"], 
+        answer: "৭" 
+    },
+    { 
+        question: "সংবিধান বাতিল, স্থগিতকরণ ইত্যাদি অপরাধ কোন অনুচ্ছেদে বলা হয়েছে?", 
+        options: ["৭ক", "৯", "১১", "১৪"], 
+        answer: "৭ক" 
+    },
+    { 
+        question: "সংবিধানের মৌলিক বিধানাবলী সংশোধন অযোগ্য কোন অনুচ্ছেদে আছে?", 
+        options: ["৭খ", "১০", "১৫", "২২"], 
+        answer: "৭খ" 
+    },
+    { 
+        question: "মূলনীতিসমূহ কোন অনুচ্ছেদে উল্লেখ করা হয়েছে?", 
+        options: ["৮", "১৩", "১৭", "২৩ক"], 
+        answer: "৮" 
+    },
+    { 
+        question: "জাতীয়তাবাদ কোন অনুচ্ছেদে উল্লেখ আছে?", 
+        options: ["৯", "১৮", "২১", "২৫"], 
+        answer: "৯" 
+    },
+    { 
+        question: "সমাজতন্ত্র ও শোষণমুক্তি কোন অনুচ্ছেদে বলা হয়েছে?", 
+        options: ["১০", "১২", "১৫", "২৩"], 
+        answer: "১০" 
+    },
+    { 
+        question: "গণতন্ত্র ও মানবাধিকার কোন অনুচ্ছেদে অন্তর্ভুক্ত?", 
+        options: ["১১", "১৬", "২০", "২৪"], 
+        answer: "১১" 
+    },
+    { 
+        question: "ধর্মনিরপেক্ষতা ও ধর্মীয় স্বাধীনতা কোন অনুচ্ছেদে উল্লেখ করা হয়েছে?", 
+        options: ["১২", "১৪", "১৮", "২৩ক"], 
+        answer: "১২" 
+    },
+    { 
+        question: "মালিকানার নীতি কোন অনুচ্ছেদে অন্তর্ভুক্ত?", 
+        options: ["১৩", "১৭", "১৯", "২৫"], 
+        answer: "১৩" 
+    },
+    { 
+        question: "কৃষক ও শ্রমিকের মুক্তি কোন অনুচ্ছেদে আছে?", 
+        options: ["১৪", "১৬", "২১", "২৪"], 
+        answer: "১৪" 
+    },
+    { 
+        question: "মৌলিক প্রয়োজনের ব্যবস্থা কোন অনুচ্ছেদে উল্লেখ করা হয়েছে?", 
+        options: ["১৫", "১৮", "২৩", "২৫"], 
+        answer: "১৫" 
+    },
+    { 
+        question: "গ্রামীণ উন্নয়ন ও কৃষি-বিপ্লব কোন অনুচ্ছেদে অন্তর্ভুক্ত?", 
+        options: ["১৬", "১৮ক", "২০", "২৩ক"], 
+        answer: "১৬" 
+    },
+    { 
+        question: "অবৈতনিক ও বাধ্যতামূলক শিক্ষা কোন অনুচ্ছেদে বলা হয়েছে?", 
+        options: ["১৭", "১৯", "২২", "২৫"], 
+        answer: "১৭" 
+    },
+    { 
+        question: "জনস্বাস্থ্য ও নৈতিকতা কোন অনুচ্ছেদে অন্তর্ভুক্ত?", 
+        options: ["১৮", "২৩", "২৪", "২৫"], 
+        answer: "১৮" 
+    },
+    { 
+        question: "পরিবেশ ও জীব-বৈচিত্র্য সংরক্ষণ কোন অনুচ্ছেদে উল্লেখ করা হয়েছে?", 
+        options: ["১৮ক", "২০", "২৩ক", "২৫"], 
+        answer: "১৮ক" 
+    },
+    { 
+        question: "সুযোগের সমতা কোন অনুচ্ছেদে অন্তর্ভুক্ত?", 
+        options: ["১৯", "২১", "২২", "২৪"], 
+        answer: "১৯" 
+    },
+    { 
+        question: "অধিকার ও কর্তব্যরূপে কর্ম কোন অনুচ্ছেদে রয়েছে?", 
+        options: ["২০", "২২", "২৩", "২৪"], 
+        answer: "২০" 
+    },
+    { 
+        question: "নাগরিক ও সরকারি কর্মচারীদের কর্তব্য কোন অনুচ্ছেদে অন্তর্ভুক্ত?", 
+        options: ["২১", "২৩ক", "২৪", "২৫"], 
+        answer: "২১" 
+    },
+    { 
+        question: "নির্বাহী বিভাগ হইতে বিচার বিভাগের পৃথকীকরণ কোন অনুচ্ছেদে বলা হয়েছে?", 
+        options: ["২২", "২৩", "২৪", "২৫"], 
+        answer: "২২" 
+    },
+    { 
+        question: "জাতীয় সংস্কৃতি সংক্রান্ত অনুচ্ছেদ কোনটি?", 
+        options: ["২৩", "২৪", "২৫", "১৮"], 
+        answer: "২৩" 
+    },
+    { 
+        question: "উপজাতি, ক্ষুদ্র জাতিসত্তা, নৃ-গোষ্ঠী সম্প্রদায়ের সংস্কৃতি সংক্রান্ত অনুচ্ছেদ কোনটি?", 
+        options: ["২৩ক", "২৪", "২৫", "১২"], 
+        answer: "২৩ক" 
+    },
+    { 
+        question: "জাতীয় স্মৃতিনিদর্শন প্রভৃতি সংক্রান্ত অনুচ্ছেদ কোনটি?", 
+        options: ["২৪", "২৫", "১৮", "১১"], 
+        answer: "২৪" 
+    },
+    { 
+        question: "আন্তর্জাতিক শান্তি, নিরাপত্তা ও সংহতির উন্নয়ন কোন অনুচ্ছেদে অন্তর্ভুক্ত?", 
+        options: ["২৫", "২৩", "২১", "১৯"], 
+        answer: "২৫" 
+    }
+        ];
+
+        let score = 0;
+        let askedQuestions = [];
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function loadQuestion() {
+            if (askedQuestions.length === questions.length) {
+              
+                askedQuestions = [];
+                score = 0;
+                document.getElementById("score").innerText = score;
+                updateProgressOverlay();
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * questions.length);
+            } while (askedQuestions.includes(randomIndex));
+
+            askedQuestions.push(randomIndex);
+            const questionObj = questions[randomIndex];
+
+            document.getElementById("question").innerText = questionObj.question;
+            const optionsContainer = document.getElementById("options");
+            optionsContainer.innerHTML = "";
+
+            shuffleArray(questionObj.options);
+
+            questionObj.options.forEach(option => {
+                const button = document.createElement("button");
+                button.className = "option-button";
+                button.innerText = option;
+                button.onclick = (e) => checkAnswer(e, button, questionObj.answer);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function checkAnswer(event, button, correctAnswer) {
+            if (button.innerText === correctAnswer) {
+                button.classList.add("correct");
+                score++;
+                document.getElementById("score").innerText = score;
+                updateProgressOverlay();
+                launchConfetti(event);
+                if (score === questions.length) {
+                    showCelebration();
+                }
+            } else {
+                button.classList.add("incorrect");
+            }
+
+            setTimeout(loadQuestion, 500);
+        }
+
+        function updateProgressOverlay() {
+            // Get the total number of questions
+            const totalQuestions = questions.length;
+
+            // Calculate progress as a percentage
+            let progress = (score / totalQuestions) * 100;
+
+            // Update the height of the progress overlay
+            document.getElementById("progress-overlay").style.height = `${progress}%`;
+        }
+
+        function showCelebration() {
+    document.getElementById("huge-celebration").style.display = "flex";
+    
+    // Multiple confetti blasts
+    for (let i = 0; i < 10; i++) {
+        setTimeout(() => {
+            confetti({
+                particleCount: 150,
+                spread: 80,
+                startVelocity: 50,
+                origin: {
+                    x: Math.random(), // Random X position
+                    y: Math.random() * 0.5 // Confetti comes from the top half
+                }
+            });
+        }, i * 300); // Blasts at different times
+    }
+}
+
+        function resetQuiz() {
+            score = 0;
+            askedQuestions = [];
+            document.getElementById("score").innerText = score;
+            document.getElementById("progress-overlay").style.height = "0%";
+            document.getElementById("huge-celebration").style.display = "none";
+            loadQuestion();
+        }
+
+        function launchConfetti(event) {
+            const buttonPosition = event.target.getBoundingClientRect();
+            const buttonCenterX = buttonPosition.left + buttonPosition.width / 2;
+            const buttonCenterY = buttonPosition.top + buttonPosition.height / 2;
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: {
+                    x: buttonCenterX / window.innerWidth,
+                    y: buttonCenterY / window.innerHeight
+                }
+            });
+        }
+
+        loadQuestion();
+    </script>
+
+</body>
+</html>
