@@ -79,6 +79,29 @@
         .author a:hover {
             text-decoration: underline;
         }
+        .sticky-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  font-size: 12px;
+  text-align: center;
+  padding: 6px 0;
+  background-color: rgba(255, 255, 255, 0.8); /* subtle glassy background */
+  color: #777;
+  border-top: 1px solid #ccc;
+  z-index: 999;
+  backdrop-filter: blur(5px); /* elegant blur effect */
+}
+
+.sticky-footer a {
+  color: #555;
+  text-decoration: none;
+}
+
+.sticky-footer a:hover {
+  text-decoration: underline;
+}
     </style>
 </head>
 <body>
@@ -102,9 +125,9 @@
         </div>
 
         <!-- Author Section -->
-        <div class="author">
-            <p>Author: <a href="#" target="_blank">Plabon</p>
-        </div>
+        <footer class="sticky-footer">
+  &copy; 2025 <a href="https://plabonkumersarker.github.io/profile/" target="_blank">Plabon Kumer Sarker</a>
+</footer>
     </div>
 </body>
 </html>
